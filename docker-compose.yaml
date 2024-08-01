@@ -1,0 +1,24 @@
+name: microservices
+
+# include all needed docker compose configurations from other services
+include:
+    - path: ../auth-service/docker-compose.yaml
+    - path: ../notification-service/docker-compose.yaml
+
+services:
+    nginx:
+        container_name: nginx
+        image: nginx
+        ports:
+            - 8000:80
+        volumes:
+            - ./nginx:/etc/nginx/:ro
+        networks:
+            - microservices
+        depends_on:
+            - auth-service
+            - notification-service-sg
+
+networks:
+    microservices:
+        driver: bridge
