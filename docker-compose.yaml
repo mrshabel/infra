@@ -2,12 +2,13 @@ name: microservices
 
 # include all needed docker compose configurations from other services
 include:
-    - path: ../auth-service/docker-compose.yaml
-    - path: ../notification-service/docker-compose.yaml
+    - path: ../auth-service/docker-compose.override-network.yaml
+    - path: ../notification-service/docker-compose.override-network.yaml
 
 services:
     nginx:
-        container_name: nginx
+        container_name: nginx-sg
+        restart: unless-stopped
         image: nginx
         ports:
             - 8000:80
@@ -18,6 +19,17 @@ services:
         depends_on:
             - auth-service
             - notification-service-sg
+
+    rabbitmq:
+        container_name: rabbitmq-sg
+        image: rabbitmq:management
+        ports:
+            - 5672:5672
+            - 15672:15672
+        networks:
+            - microservices
+        volumes:
+            - ./rabbitmq-data:/var/lib/rabbitmq
 
 networks:
     microservices:
